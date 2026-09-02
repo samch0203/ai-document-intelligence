@@ -1,9 +1,6 @@
 import os
 
-from dotenv import load_dotenv
 from groq import Groq
-
-load_dotenv()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
@@ -19,6 +16,10 @@ LLM_MODEL = os.getenv(
 
 
 def generate_answer(question: str, context: str) -> str:
+    """
+    Generate an answer using the LLM based only on the provided context.
+    """
+
     prompt = f"""
 You are an AI document assistant.
 
