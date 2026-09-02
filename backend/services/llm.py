@@ -1,27 +1,24 @@
 import os
-import httpx
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
+from groq import Groq
 
 load_dotenv()
 
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-OLLAMA_URL = os.getenv(
-    "OLLAMA_URL",
-    "http://localhost:11434/api/generate"
-)
+if not GROQ_API_KEY:
+    raise RuntimeError("GROQ_API_KEY is not configured.")
+
+client = Groq(api_key=GROQ_API_KEY)
 
 LLM_MODEL = os.getenv(
     "LLM_MODEL",
-    "llama3.2:3b"
+    "llama-3.1-8b-instant"
 )
 
 
 def generate_answer(question: str, context: str) -> str:
-    """
-    Generate an answer using the LLM based only on the provided context.
-    """
-
     prompt = f"""
 You are an AI document assistant.
 
@@ -44,29 +41,21 @@ User Question:
 Answer:
 """
 
-    payload = {
-        "model": LLM_MODEL,
-        "prompt": prompt,
-        "stream": False
-    }
-
     try:
-        response = httpx.post(
-            OLLAMA_URL,
-            json=payload,
-            timeout=120
+        response = client.chat.completions.create(
+            model=LLM_MODEL,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0
         )
 
-        response.raise_for_status()
+        return response.choices[0].message.content.strip()
 
-        data = response.json()
-
-        return data.get(
-            "response",
-            "The AI could not generate an answer."
-        ).strip()
-
-    except httpx.HTTPError as e:
+    except Exception as e:
         raise RuntimeError(
-            f"LLM request failed: {str(e)}"
+            f"Groq request failed: {str(e)}"
         )
