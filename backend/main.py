@@ -15,7 +15,8 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://ai-document-intelligence-beta.vercel.app"
+        "https://ai-document-intelligence-beta.vercel.app",
+        "https://ai-document-intelligence-git-main-sam-a51a.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
